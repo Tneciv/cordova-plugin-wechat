@@ -3,6 +3,7 @@
 //  cordova-plugin-wechat
 //
 //  Created by xu.li on 12/23/13.
+//  Edited by Tneciv on 2017/12/13
 //
 //
 
@@ -15,10 +16,10 @@ static int const MAX_THUMBNAIL_SIZE = 320;
 #pragma mark "API"
 - (void)pluginInitialize {
     NSString* appId = [[self.commandDelegate settings] objectForKey:@"wechatappid"];
-    if (appId){
-        self.wechatAppId = appId;
-        [WXApi registerApp: appId];
-    }
+
+    self.wechatAppId = appId;
+    [WXApi registerApp: appId];
+
 
     NSLog(@"cordova-plugin-wechat has been initialized. Wechat SDK Version: %@. APP_ID: %@.", [WXApi getApiVersion], appId);
 }
@@ -94,7 +95,7 @@ static int const MAX_THUMBNAIL_SIZE = 320;
 
 - (void)sendAuthRequest:(CDVInvokedUrlCommand *)command
 {
-
+    [self performSelector:@selector(pluginInitialize)];
     SendAuthReq* req =[[SendAuthReq alloc] init];
 
     // scope
@@ -138,11 +139,11 @@ static int const MAX_THUMBNAIL_SIZE = 320;
     NSArray *requiredParams;
     if ([params objectForKey:@"mch_id"])
     {
-        requiredParams = @[@"mch_id", @"prepay_id", @"timestamp", @"nonce", @"sign"];
+        requiredParams = @[@"mch_id", @"prepay_id", @"timestamp", @"nonce", @"sign", @"appid"];
     }
     else
     {
-        requiredParams = @[@"partnerid", @"prepayid", @"timestamp", @"noncestr", @"sign"];
+        requiredParams = @[@"partnerid", @"prepayid", @"timestamp", @"noncestr", @"sign", @"appid"];
     }
 
     for (NSString *key in requiredParams)
@@ -155,6 +156,10 @@ static int const MAX_THUMBNAIL_SIZE = 320;
     }
 
     PayReq *req = [[PayReq alloc] init];
+
+    NSString *appId = [params objectForKey:requiredParams[5]];
+    [WXApi registerApp: appId];
+
     req.partnerId = [params objectForKey:requiredParams[0]];
     req.prepayId = [params objectForKey:requiredParams[1]];
     req.timeStamp = [[params objectForKey:requiredParams[2]] intValue];
@@ -323,27 +328,27 @@ static int const MAX_THUMBNAIL_SIZE = 320;
             [self.commandDelegate sendPluginResult:commandResult callbackId:self.currentCallbackId];
         }
         else if([resp isKindOfClass:[WXChooseInvoiceResp class]]){
-                    WXChooseInvoiceResp* invoiceResp = (WXChooseInvoiceResp *)resp;
+            WXChooseInvoiceResp* invoiceResp = (WXChooseInvoiceResp *)resp;
 
-        //            response = @{
-        //                         @"data":invoiceResp.cardAry
-        //                         }
-                    NSMutableArray *arrM = [[NSMutableArray alloc] init];
-                    NSDictionary *mutableDic = nil;
-                    for(WXInvoiceItem *invoiceItem in invoiceResp.cardAry){
-                        mutableDic = @{
-                                       @"cardId": invoiceItem.cardId,
-                                       @"encryptCode": invoiceItem.encryptCode,
-                                       };
-                        [arrM addObject:mutableDic];
-                    }
-                    response = @{
-                                 @"data": arrM
-                                 };
-                    NSLog(@"response======= %@", response);
-                    CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
-                    [self.commandDelegate sendPluginResult:commandResult callbackId:self.currentCallbackId];
-                }
+            //            response = @{
+            //                         @"data":invoiceResp.cardAry
+            //                         }
+            NSMutableArray *arrM = [[NSMutableArray alloc] init];
+            NSDictionary *mutableDic = nil;
+            for(WXInvoiceItem *invoiceItem in invoiceResp.cardAry){
+                mutableDic = @{
+                               @"cardId": invoiceItem.cardId,
+                               @"encryptCode": invoiceItem.encryptCode,
+                               };
+                [arrM addObject:mutableDic];
+            }
+            response = @{
+                         @"data": arrM
+                         };
+            NSLog(@"response======= %@", response);
+            CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
+            [self.commandDelegate sendPluginResult:commandResult callbackId:self.currentCallbackId];
+        }
         else
         {
             [self successWithCallbackID:self.currentCallbackId];
