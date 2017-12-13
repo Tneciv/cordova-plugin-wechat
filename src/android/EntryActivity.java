@@ -23,6 +23,7 @@ import xu.li.cordova.wechat.Wechat;
 
 /**
  * Created by xu.li<AthenaLightenedMyPath@gmail.com> on 9/1/15.
+ * Edited by Tneciv on 2017-12-13
  */
 public class EntryActivity extends Activity implements IWXAPIEventHandler {
 
@@ -30,7 +31,7 @@ public class EntryActivity extends Activity implements IWXAPIEventHandler {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        IWXAPI api = Wechat.getWxAPI(this);
+        IWXAPI api = Wechat.getWxAPI();
 
         if (api == null) {
             startMainActivity();
@@ -45,7 +46,7 @@ public class EntryActivity extends Activity implements IWXAPIEventHandler {
 
         setIntent(intent);
 
-        IWXAPI api = Wechat.getWxAPI(this);
+        IWXAPI api = Wechat.getWxAPI();
         if (api == null) {
             startMainActivity();
         } else {
@@ -62,7 +63,7 @@ public class EntryActivity extends Activity implements IWXAPIEventHandler {
 
         if (ctx == null) {
             startMainActivity();
-            return ;
+            return;
         }
 
         switch (resp.errCode) {
@@ -124,7 +125,7 @@ public class EntryActivity extends Activity implements IWXAPIEventHandler {
         CallbackContext ctx = Wechat.getCurrentCallbackContext();
 
         if (ctx == null) {
-            return ;
+            return;
         }
 
         JSONObject response = new JSONObject();
@@ -142,17 +143,17 @@ public class EntryActivity extends Activity implements IWXAPIEventHandler {
 
     protected void plunckInvoiceData(BaseResp resp) {
 
-            CallbackContext ctx = Wechat.getCurrentCallbackContext();
-            ChooseCardFromWXCardPackage.Resp resp1 = (ChooseCardFromWXCardPackage.Resp) resp;
-            JSONObject response = new JSONObject();
+        CallbackContext ctx = Wechat.getCurrentCallbackContext();
+        ChooseCardFromWXCardPackage.Resp resp1 = (ChooseCardFromWXCardPackage.Resp) resp;
+        JSONObject response = new JSONObject();
 
-            try {
-                JSONArray resp2 = new JSONArray(resp1.cardItemList);
-                response.put("data", resp2);
-            } catch (JSONException e) {
-                Log.e(Wechat.TAG, e.getMessage());
-            }
-
-            ctx.success(response);
+        try {
+            JSONArray resp2 = new JSONArray(resp1.cardItemList);
+            response.put("data", resp2);
+        } catch (JSONException e) {
+            Log.e(Wechat.TAG, e.getMessage());
         }
+
+        ctx.success(response);
+    }
 }
