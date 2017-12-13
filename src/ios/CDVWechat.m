@@ -95,7 +95,8 @@ static int const MAX_THUMBNAIL_SIZE = 320;
 
 - (void)sendAuthRequest:(CDVInvokedUrlCommand *)command
 {
-    [self performSelector:@selector(pluginInitialize)];
+//    [self performSelector:@selector(pluginInitialize)];
+    [self pluginInitialize];
     SendAuthReq* req =[[SendAuthReq alloc] init];
 
     // scope
